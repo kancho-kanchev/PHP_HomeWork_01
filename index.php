@@ -5,10 +5,14 @@ $filterGroup = 0;
 if (isset($_POST['group'])){
 	$filterGroup = (int)$_POST['group'];
 }
+if (file_exists('data.txt')){
+	$result = file('data.txt');
+	$rows = count($result);
+}
 require_once 'includes/header.php';
 ?>
 		<form method="POST" action="form.php">
-			<input type="hidden" name="rows" value="4"/>
+			<input type="hidden" name="rows" value="<?= $rows; ?>"/>
 			<input type="submit" value="Добави нов разход" />
 		</form>
 		<form method="POST" action="index.php">
@@ -35,25 +39,39 @@ require_once 'includes/header.php';
 				<td></td>
 			</tr>
 <?php 
-if (file_exists('data.txt')){
-	$result = file('data.txt');
+if (isset($result)){
+	$counter = 1;
+	$sum = 0;
 	foreach ($result as $value){
 		$columns = explode(';', $value);
-		$ID = $columns[0];
-		echo '<tr>
-				<td>'.$columns[0].'</td>
-				<td>'.$columns[1].'</td>
-				<td>'.$columns[2].'</td>
-				<td>'.$columns[3].'</td>
-				<td>'.$columns[4].'</td>
-				<td>'.$columns[3]*$columns[4].'</td>
-				<td>'.$groups[trim($columns[5])].'</td>
-				<td>редактирай</td>
-				<td>изтрий</td>
-			</tr>';
+		if ($filterGroup==0 || $filterGroup==$columns[5]){
+			$sum+=$columns[3]*$columns[4];
+			echo '<tr>
+					<td>'.$counter++.'</td>
+					<td>'.$columns[1].'</td>
+					<td>'.$columns[2].'</td>
+					<td>'.$columns[3].'</td>
+					<td>'.number_format($columns[4], 2).'</td>
+					<td>'.number_format($columns[3]*$columns[4], 2).'</td>
+					<td>'.$groups[trim($columns[5])].'</td>
+					<td>редактирай</td>
+					<td>изтрий</td>
+				</tr>';
+		}
 	}
 }
 ?>
+			<tr>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>Сума:</td>
+				<td><?= number_format($sum, 2); ?></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
 		</table>
 <?php 
 include_once 'includes/footer.php';
