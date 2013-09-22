@@ -20,7 +20,11 @@ require_once 'includes/header.php';
 				<?php 
 					echo'<option value="0">'.$selectTitle.'</option>'."\n";
 					foreach ($groups as $key=>$value) {
-						echo'			<option value="'.$key.'">'.$value.'</option>'."\n";
+						echo'			<option value="'.$key.'"';
+						if ($filterGroup==$key){
+							echo 'selected';
+						}
+						echo '>'.$value.'</option>'."\n";
 					}
 				?>
 			</select>
