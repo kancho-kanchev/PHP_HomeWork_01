@@ -5,7 +5,7 @@ $selectTitle = 'Избери';
 require_once 'includes/header.php';
 if ($_POST) {
 	if (isset($_POST['rows'])){
-		echo $_POST['rows'];
+		$rows = $_POST['rows'];
 	}
 	if (isset($_POST['article'])){
 		$article = str_replace('; ', ' ', $_POST['article']);
@@ -26,28 +26,27 @@ if ($_POST) {
 		$selectedGroup = (int)$_POST['group'];
 	}
 	$error = false;
-	if (mb_strlen($article)<3){
+	if (isset($article) && mb_strlen($article)<3){
 		echo '<p>Името на артикула/услугата е прекалено късо</p>';
 		$error = true;
 	}
-	if ($amount<=0){
+	if (isset($amount) && $amount<=0){
 		echo '<p>Невалидна стойност за количество</p>';
 	}
-	if ($price<=0){
+	if (isset($price) && $price<=0){
 		echo '<p>Невалидна стойност за цена</p>';
 		$error = true;
 	}
-	if (!array_key_exists($selectedGroup, $groups)){
+	if (isset($selectedGroup) && !array_key_exists($selectedGroup, $groups)){
 		echo '<p>Невалидна група</p>';
 		$error = true;
 	}
-	if ($selectedGroup==0){
+	if (isset($selectedGroup) && $selectedGroup==0){
 		echo '<p>Не сте избрали група</p>';
 		$error = true;
 	}
 	if (!$error){//. date("d.m.y", (int) $splitedArray[3]) .
-		$ID = 0;
-		$result=$ID.';'.date("d.m.Y").';'.$article.';'.$amount.';'.$price.';'.$selectedGroup."\n";
+		$result=++$rows.';'.date("d.m.Y").';'.$article.';'.$amount.';'.$price.';'.$selectedGroup."\n";
 		if (file_put_contents('data.txt', $result, FILE_APPEND)){
 			echo 'Записа е успешен';
 		}
