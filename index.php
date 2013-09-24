@@ -5,6 +5,7 @@ $filterGroup = 0;
 if (isset($_POST['group'])){
 	$filterGroup = (int)$_POST['group'];
 }
+$rows=0;
 if (file_exists('data.txt')){
 	$result = file('data.txt');
 	$rows = count($result);

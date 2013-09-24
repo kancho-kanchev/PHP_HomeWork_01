@@ -7,6 +7,7 @@ if ($_POST) {
 	if (isset($_POST['rows'])){
 		$rows = $_POST['rows'];
 	}
+	//нормализация
 	if (isset($_POST['article'])){
 		$article = str_replace('; ', ' ', $_POST['article']);
 		$article = str_replace(';', ' ', $article);
@@ -25,32 +26,35 @@ if ($_POST) {
 	if (isset($_POST['group'])){
 		$selectedGroup = (int)$_POST['group'];
 	}
-	$error = false;
-	if (isset($article) && mb_strlen($article)<3){
-		echo '<p>Името на артикула/услугата е прекалено късо</p>';
-		$error = true;
-	}
-	if (isset($amount) && $amount<=0){
-		echo '<p>Невалидна стойност за количество</p>';
-	}
-	if (isset($price) && $price<=0){
-		echo '<p>Невалидна стойност за цена</p>';
-		$error = true;
-	}
-	if (isset($selectedGroup) && !array_key_exists($selectedGroup, $groups)){
-		echo '<p>Невалидна група</p>';
-		$error = true;
-	}
-	if (isset($selectedGroup) && $selectedGroup==0){
-		echo '<p>Не сте избрали група</p>';
-		$error = true;
-	}
-	if (!$error){//. date("d.m.y", (int) $splitedArray[3]) .
-		$result=++$rows.';'.date("d.m.Y").';'.$article.';'.$amount.';'.$price.';'.$selectedGroup."\n";
-		if (file_put_contents('data.txt', $result, FILE_APPEND)){
-			echo 'Записа е успешен';
+	//валидация
+	if (isset($article) && isset($amount) && isset($price) && isset($selectedGroup)) {
+		$error = false;
+		if (isset($article) && mb_strlen($article)<3){
+			echo '<p>Името на артикула/услугата е прекалено късо</p>';
+			$error = true;
 		}
-		//echo $result;
+		if (isset($amount) && $amount<=0){
+			echo '<p>Невалидна стойност за количество</p>';
+		}
+		if (isset($price) && $price<=0){
+			echo '<p>Невалидна стойност за цена</p>';
+			$error = true;
+		}
+		if (isset($selectedGroup) && !array_key_exists($selectedGroup, $groups)){
+			echo '<p>Невалидна група</p>';
+			$error = true;
+		}
+		if (isset($selectedGroup) && $selectedGroup==0){
+			echo '<p>Не сте избрали група</p>';
+			$error = true;
+		}
+		if (!$error){//. date("d.m.y", (int) $splitedArray[3]) .
+			$result=++$rows.';'.date("d.m.Y").';'.$article.';'.$amount.';'.$price.';'.$selectedGroup."\n";
+			if (file_put_contents('data.txt', $result, FILE_APPEND)){
+				echo 'Записа е успешен';
+			}
+			//echo $result;
+		}
 	}
 }
 echo "\n".'<pre>'.print_r( $_POST, true).'</pre>'."\n";
@@ -58,6 +62,7 @@ echo "\n".'<pre>'.print_r( $_POST, true).'</pre>'."\n";
 ?>
 	<a href="index.php">Списък</a>
 	<form method="POST">
+		<input type="hidden" name="rows" value="<?= $rows; ?>"/>
 		<div>Дата:<input type="text" name="date" /></div>
 		<div>артикул:<input type="text" name="article" /></div>
 		<div>количество:<input type="text" name="amount" /></div>
