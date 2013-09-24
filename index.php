@@ -1,27 +1,31 @@
 <?php 
+/*
+ * Не ми харесва визуално GET заявката затова я ползвам само в краен случай
+ * (за 'search' поле примерно)
+ * по тази причина всички заявки са ми POST.
+ * 
+ * Нарочно не съм използвал грам CSS и JavaScript за да може да се оцени по лесно
+ * PHP кода и да е по лесно на проверяващия.
+ * 
+ * \n ползвам за да се визуализира html кода прегледно.
+ */
+mb_internal_encoding('UTF-8');
 $pageTitle = 'Списък';
-$selectTitle = 'Всички';
-$filterGroup = 0;
+$selectTitle = 'Всички'; // Добавя "Всички" в падащото меню на филтъра
+$filterGroup = 0; // Задава филтър по подразбираане "Всички"
 if (isset($_POST['group'])){
 	$filterGroup = (int)$_POST['group'];
 }
-$rows=0;
-if (file_exists('data.txt')){
-	$result = file('data.txt');
-	$rows = count($result);
-}
 require_once 'includes/header.php';
 ?>
-		<form method="POST" action="form.php">
-			<input type="hidden" name="rows" value="<?= $rows; ?>"/>
-			<input type="submit" value="Добави нов разход" />
-		</form>
-		<form method="POST" action="index.php">
+		<form method="POST" action="index.php"> <!-- action-a е указан за прегледност -->
+			<!-- <span>Начална дата <input type="text" name="date1" /></span> -->
+			<!-- <span>Крайна дата <input type="text" name="date2" /></span> -->
 			<select name="group">
 				<?php 
 					echo'<option value="0">'.$selectTitle.'</option>'."\n";
 					foreach ($groups as $key=>$value) {
-						echo'			<option value="'.$key.'"';
+						echo'				<option value="'.$key.'"';
 						if ($filterGroup==$key){
 							echo 'selected';
 						}
@@ -44,24 +48,53 @@ require_once 'includes/header.php';
 				<td></td>
 			</tr>
 <?php 
-if (isset($result)){
+if (file_exists('data.txt')){
+	$result = file('data.txt');
 	$counter = 1;
 	$sum = 0;
+	$row = 0;
 	foreach ($result as $value){
 		$columns = explode(';', $value);
+		$row++;
 		if ($filterGroup==0 || $filterGroup==$columns[5]){
 			$sum+=$columns[3]*$columns[4];
-			echo '<tr>
-					<td>'.$counter++.'</td>
-					<td>'.$columns[1].'</td>
-					<td>'.$columns[2].'</td>
-					<td>'.$columns[3].'</td>
-					<td>'.number_format($columns[4], 2).'</td>
-					<td>'.number_format($columns[3]*$columns[4], 2).'</td>
-					<td>'.$groups[trim($columns[5])].'</td>
-					<td>редактирай</td>
-					<td>изтрий</td>
-				</tr>';
+			// подавам всички данни, вкл. номера на реда за да не се получи
+			// погрешно изтриване на редове чрез помпане на F5 или подобни
+			echo '			<tr>
+				<td>'.$counter++.'</td>
+				<td>'.$columns[1].'</td>
+				<td>'.$columns[2].'</td>
+				<td>'.$columns[3].'</td>
+				<td>'.number_format($columns[4], 2).'</td>
+				<td>'.number_format($columns[3]*$columns[4], 2).'</td>
+				<td>'.$groups[trim($columns[5])].'</td>
+				<td>
+					<form method="POST" action="form.php"> 
+						<input type="hidden" name="row" value="'.$row.'"/>
+						<input type="hidden" name="id" value="'.$columns[0].'"/>
+						<input type="hidden" name="date" value="'.$columns[1].'"/>
+						<input type="hidden" name="article" value="'.$columns[2].'"/>
+						<input type="hidden" name="amount" value="'.$columns[3].'"/>
+						<input type="hidden" name="price" value="'.$columns[4].'"/>
+						<input type="hidden" name="group" value="'.$columns[5].'"/>
+						<input type="hidden" name="action" value="edit"/>
+						<input type="submit" value="Редактирай" />
+					</form>
+				</td>
+				<td>
+					<form method="POST" action="form.php">
+						<input type="hidden" name="row" value="'.$row.'"/>
+						<input type="hidden" name="id" value="'.$columns[0].'"/>
+						<input type="hidden" name="date" value="'.$columns[1].'"/>
+						<input type="hidden" name="article" value="'.$columns[2].'"/>
+						<input type="hidden" name="amount" value="'.$columns[3].'"/>
+						<input type="hidden" name="price" value="'.$columns[4].'"/>
+						<input type="hidden" name="group" value="'.$columns[5].'"/>
+						<input type="hidden" name="action" value="del"/>
+						<input type="submit" value="Изтрий" />
+					</form>
+				</td>
+			</tr>'."\n";
 		}
 	}
 }
@@ -78,6 +111,10 @@ if (isset($result)){
 				<td></td>
 			</tr>
 		</table>
-<?php 
+		<form method="POST" action="form.php">
+			<input type="hidden" name="action" value="add"/>
+			<input type="submit" value="Добави нов разход" />
+		</form> 
+<?php
 include_once 'includes/footer.php';
 ?>
