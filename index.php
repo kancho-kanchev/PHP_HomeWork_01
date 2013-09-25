@@ -8,6 +8,11 @@
  * PHP кода и да е по лесно на проверяващия.
  * 
  * \n ползвам за да се визуализира html кода прегледно.
+ * 
+ * ID-то може да се получи да не е уникално, но за всяко действие се прави проверка
+ * по всички колони. Дори да има два еднакви записа няма да има проблем единият да се
+ * промени или изтрие.
+ * 
  */
 mb_internal_encoding('UTF-8');
 $pageTitle = 'Списък';
@@ -71,6 +76,7 @@ if (file_exists('data.txt')){
 				<td>
 					<form method="POST" action="form.php"> 
 						<input type="hidden" name="row" value="'.$row.'"/>
+						<input type="hidden" name="value" value="'.$value.'"/>
 						<input type="hidden" name="id" value="'.$columns[0].'"/>
 						<input type="hidden" name="date" value="'.$columns[1].'"/>
 						<input type="hidden" name="article" value="'.$columns[2].'"/>
@@ -112,7 +118,7 @@ if (file_exists('data.txt')){
 			</tr>
 		</table>
 		<form method="POST" action="form.php">
-			<input type="hidden" name="action" value="add"/>
+			<!-- <input type="hidden" name="action" value="add"/> -->
 			<input type="submit" value="Добави нов разход" />
 		</form> 
 <?php
