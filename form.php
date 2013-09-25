@@ -6,6 +6,7 @@ require_once 'includes/header.php';
 if ($_POST && isset($_POST['action'])) {
 	$action = $_POST['action'];
 	if ($action=='add'){
+		$nextStep = 'form.php';
 		//нормализация
 		if (isset($_POST['article'])){
 			$article = str_replace('; ', ' ', $_POST['article']);
@@ -61,38 +62,30 @@ if ($_POST && isset($_POST['action'])) {
 			echo $result;
 		}
 	}
-	if ($action=='edit'){
+	if ($action=='edit' || $action=='del'){
+		$nextStep = 'index.php';
 		if (file_exists('data.txt')){
 			$result = file('data.txt');
 			$row = 0;
-			$match = false;
-			$resultRow = $_POST['id'].';'.$_POST['date'].';'.$_POST['article'].';'.$_POST['amount'].';'.$_POST['price'].';'.$_POST['group']."\n";
 			foreach ($result as $value){
 				$row++;
-				echo $row.' '.$_POST['row'].'</br>';
-				echo $value.'</br>';
-				echo $_POST['value'].'</br>';
-				if ($value == $_POST['value']) {
-					$match = true;
+				$value = trim($value);
+				if ($value == trim($_POST['value']) && $row == $_POST['row'])  {
+					$columns = explode(';', $value);
+					$date = $columns[1];
+					$article = $columns[2];
+					$amount = $columns[3];
+					$price = $columns[4];
+					$group = $groups[trim($columns[5])];
 				}
 			}
-			if ($match) {
-				echo 'savpada';
-			}
-			else echo 'ne savpada';
 		}
 		else {
 			echo 'ГРЕШКА -> НЯМА ФАЙЛ';
 		}
 	}
-	if ($action=='del'){
-		if (file_exists('data.txt')){
-			$result = file('data.txt');
-
-		}
-		else {
-			echo 'ГРЕШКА -> НЯМА ФАЙЛ';
-		}
+	if ($action=='edit_is_true' || $action=='del_is_true'){
+		
 	}
 }
 else {
@@ -101,18 +94,22 @@ else {
 echo "\n".'<pre>'.print_r( $_POST, true).'</pre>'."\n";
 //echo (int) ( (0.1+0.7) * 10 ); // извежда 7! ---> интересен факт за PHP 
 ?>
-	<form method="POST" action="form.php"> <!-- action-a е указан за прегледност -->
-		<input type="hidden" name="action" value="<?= $action ?>"/>
-		<div>Дата:<input type="text" name="date" /></div>
-		<div>артикул:<input type="text" name="article" /></div>
-		<div>количество:<input type="text" name="amount" /></div>
-		<div>цена:<input type="text" name="price" /></div>
+	<form method="POST" action="<?= $nextStep; ?>">
+		<input type="hidden" name="action" value="<?= ($action=='add') ? $action : $action.'_is_true' ?>"/>
+		<div>Дата:<input type="text" name="date" value="<?= (isset($date)) ? $date : '';?>"/></div>
+		<div>артикул:<input type="text" name="article" value="<?= (isset($article)) ? $article : '';?>"/></div>
+		<div>количество:<input type="text" name="amount" value="<?= (isset($amount)) ? $amount : '';?>"/></div>
+		<div>цена:<input type="text" name="price"  value="<?= (isset($price)) ? $price : '';?>"/></div>
 		<div>група:
 			<select name="group">
 				<?php 
 					echo'<option value="0">'.$selectTitle.'</option>'."\n";
 					foreach ($groups as $key=>$value) {
-						echo'				<option value="'.$key.'">'.$value.'</option>'."\n";
+						echo'				<option value="'.$key.'"';
+						if (trim($group)==$value){
+							echo ' selected';
+						}
+						echo '>'.$value.'</option>'."\n";
 					}
 				?>
 			</select>

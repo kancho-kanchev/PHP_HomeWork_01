@@ -77,12 +77,6 @@ if (file_exists('data.txt')){
 					<form method="POST" action="form.php"> 
 						<input type="hidden" name="row" value="'.$row.'"/>
 						<input type="hidden" name="value" value="'.$value.'"/>
-						<input type="hidden" name="id" value="'.$columns[0].'"/>
-						<input type="hidden" name="date" value="'.$columns[1].'"/>
-						<input type="hidden" name="article" value="'.$columns[2].'"/>
-						<input type="hidden" name="amount" value="'.$columns[3].'"/>
-						<input type="hidden" name="price" value="'.$columns[4].'"/>
-						<input type="hidden" name="group" value="'.$columns[5].'"/>
 						<input type="hidden" name="action" value="edit"/>
 						<input type="submit" value="Редактирай" />
 					</form>
@@ -90,12 +84,7 @@ if (file_exists('data.txt')){
 				<td>
 					<form method="POST" action="form.php">
 						<input type="hidden" name="row" value="'.$row.'"/>
-						<input type="hidden" name="id" value="'.$columns[0].'"/>
-						<input type="hidden" name="date" value="'.$columns[1].'"/>
-						<input type="hidden" name="article" value="'.$columns[2].'"/>
-						<input type="hidden" name="amount" value="'.$columns[3].'"/>
-						<input type="hidden" name="price" value="'.$columns[4].'"/>
-						<input type="hidden" name="group" value="'.$columns[5].'"/>
+						<input type="hidden" name="value" value="'.$value.'"/>
 						<input type="hidden" name="action" value="del"/>
 						<input type="submit" value="Изтрий" />
 					</form>
