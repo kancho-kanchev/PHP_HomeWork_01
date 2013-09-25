@@ -14,19 +14,26 @@
  * промени или изтрие.
  * 
  */
-mb_internal_encoding('UTF-8');
 $pageTitle = 'Списък';
 $selectTitle = 'Всички'; // Добавя "Всички" в падащото меню на филтъра
 $filterGroup = 0; // Задава филтър по подразбираане "Всички"
-if (isset($_POST['group'])){
-	$filterGroup = (int)$_POST['group'];
-}
 require_once 'includes/header.php';
+if (isset($_POST['filterGroup'])){
+	$filterGroup = (int)$_POST['filterGroup'];
+}
+if (isset($_POST['action']) && $_POST['action']=='edit'){
+	//редактира реда
+	echo 'edit';
+}
+if (isset($_POST['action']) && $_POST['action']=='del'){
+	//изтрива реда
+	echo 'del';
+}
 ?>
 		<form method="POST" action="index.php"> <!-- action-a е указан за прегледност -->
 			<!-- <span>Начална дата <input type="text" name="date1" /></span> -->
 			<!-- <span>Крайна дата <input type="text" name="date2" /></span> -->
-			<select name="group">
+			<select name="filterGroup">
 				<?php 
 					echo'<option value="0">'.$selectTitle.'</option>'."\n";
 					foreach ($groups as $key=>$value) {
@@ -109,7 +116,6 @@ if (file_exists('data.txt')){
 		<form method="POST" action="form.php">
 			<!-- <input type="hidden" name="action" value="add"/> -->
 			<input type="submit" value="Добави нов разход" />
-		</form> 
+		</form>
 <?php
 include_once 'includes/footer.php';
-?>

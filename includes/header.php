@@ -1,5 +1,7 @@
 <?php
 require_once 'includes/constants.php';
+require_once 'includes/utils.php';
+mb_internal_encoding('UTF-8');
 ?>
 <!DOCTYPE html>
 <html>

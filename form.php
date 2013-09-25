@@ -1,5 +1,4 @@
 <?php 
-mb_internal_encoding('UTF-8');
 $pageTitle = 'Форма';
 $selectTitle = 'Избери'; // Добавя "Избери" в падащото меню за група
 require_once 'includes/header.php';
@@ -7,46 +6,12 @@ if ($_POST && isset($_POST['action'])) {
 	$action = $_POST['action'];
 	if ($action=='add'){
 		$nextStep = 'form.php';
-		//нормализация
-		if (isset($_POST['article'])){
-			$article = str_replace('; ', ' ', $_POST['article']);
-			$article = str_replace(';', ' ', $article);
-			$article = trim($article);
-		}
-		if (isset($_POST['amount'])){
-			$amount = trim($_POST['amount']);
-			$amount = (int)$amount;
-		}
-		if (isset($_POST['price'])){
-			$price = trim($_POST['price']);
-			$price = str_replace(',', '.', $price);
-			$price = floatval($price);
-			$price = round($price, 2);
-		}
-		if (isset($_POST['group'])){
-			$selectedGroup = (int)$_POST['group'];
-		}
-		//валидация
-		$error = false;
-		if (isset($article) && mb_strlen($article)<3){
-			echo '<p>Името на артикула/услугата е прекалено късо</p>';
-			$error = true;
-		}
-		if (isset($amount) && $amount<=0){
-			echo '<p>Невалидна стойност за количество</p>';
-		}
-		if (isset($price) && $price<=0){
-			echo '<p>Невалидна стойност за цена</p>';
-			$error = true;
-		}
-		if (isset($selectedGroup) && !array_key_exists($selectedGroup, $groups) && !$selectedGroup==0){
-			echo '<p>Невалидна група</p>';
-			$error = true;
-		}
-		if (isset($selectedGroup) && $selectedGroup==0){
-			echo '<p>Не сте избрали група</p>';
-			$error = true;
-		}
+		normalize();
+		if (isset($_POST['article'])) $article = $_POST['article'];
+		if (isset($_POST['amount'])) $amount = $_POST['amount'];
+		if (isset($_POST['article'])) $price = $_POST['price'];
+		if (isset($_POST['article'])) $selectedGroup = $_POST['group'];
+		$error = validation($article, $amount, $price, $selectedGroup, $groups);
 		if (!$error){//. date("d.m.y", (int) $splitedArray[3]) .
 			if (file_exists('data.txt')){
 				$result = file('data.txt');
@@ -56,10 +21,15 @@ if ($_POST && isset($_POST['action'])) {
 				$id=1;
 			}
 			$result=$id.';'.date("d.m.Y").';'.$article.';'.$amount.';'.$price.';'.$selectedGroup."\n";
-			//if (file_put_contents('data.txt', $result, FILE_APPEND)){
-			//	echo 'Записа е успешен';
-			//}
-			echo $result;
+			if (file_put_contents('data.txt', $result, FILE_APPEND)){
+				echo 'Записа е успешен';
+			}
+			//echo $result;
+			$date = date("d.m.Y");
+			$article = '';
+			$amount = '';
+			$price = '';
+			$selectedGroup = 0;
 		}
 	}
 	if ($action=='edit' || $action=='del'){
@@ -90,13 +60,16 @@ if ($_POST && isset($_POST['action'])) {
 }
 else {
 	$action = 'add';
+	$nextStep = 'form.php';
+	$date = date("d.m.Y");
 }
-echo "\n".'<pre>'.print_r( $_POST, true).'</pre>'."\n";
+//echo "\n".'<pre>'.print_r( $_POST, true).'</pre>'."\n";
 //echo (int) ( (0.1+0.7) * 10 ); // извежда 7! ---> интересен факт за PHP 
 ?>
 	<form method="POST" action="<?= $nextStep; ?>">
-		<input type="hidden" name="action" value="<?= ($action=='add') ? $action : $action.'_is_true' ?>"/>
-		<div>Дата:<input type="text" name="date" value="<?= (isset($date)) ? $date : '';?>"/></div>
+		<input type="hidden" name="action" value="<?= $action; ?>"/>
+		<?php if ($action=='edit' || $action=='del') echo '<input type="hidden" name="row" value="'.$_POST['row'].'"/>'; ?>
+		<div>Дата:<input type="hidden" name="date" value="<?= (isset($date)) ? $date : date("d.m.Y");?>"/></div> <!-- трябва да се направи валидация за дата -->
 		<div>артикул:<input type="text" name="article" value="<?= (isset($article)) ? $article : '';?>"/></div>
 		<div>количество:<input type="text" name="amount" value="<?= (isset($amount)) ? $amount : '';?>"/></div>
 		<div>цена:<input type="text" name="price"  value="<?= (isset($price)) ? $price : '';?>"/></div>
@@ -106,7 +79,7 @@ echo "\n".'<pre>'.print_r( $_POST, true).'</pre>'."\n";
 					echo'<option value="0">'.$selectTitle.'</option>'."\n";
 					foreach ($groups as $key=>$value) {
 						echo'				<option value="'.$key.'"';
-						if (trim($group)==$value){
+						if (isset($group) && trim($group)==$value){
 							echo ' selected';
 						}
 						echo '>'.$value.'</option>'."\n";
@@ -134,4 +107,3 @@ switch ($action) {
 	</form>
 <?php 
 include_once 'includes/footer.php';
-?>
